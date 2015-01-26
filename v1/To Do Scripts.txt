@@ -1,0 +1,38 @@
+1. Converted clicks en lugar de Conversions.
+Con al menos un click.
+Incluir nombre de campaña y ubicación para realizar comparaciones.
+
+2. Basado en objetivos, combo de opciones que mande llamar ciertas cuentas. Uno por equipo.
+
+3. Investigar si se puede desagregar QS. Es de menos prioridad.
+
+4. Pausar anuncios basadas en broken URLs y mandar una alerta de campaña, adgroup y anuncio que fue pausado junto con URL rota.
+Adgroup tiene un solo sitio. (dominio) 
+
+5. Para casos especiales. 
+
+6. Existe a nivel campaña. incluir a nivel anuncios/keyword a nivel etiqueta.
+
+7.  Políticas de anuncios. XX
+
+8. --
+
+9. Muy específico.
+
+10. Viajamex con Andrea, generación de anuncios genéricos con param2 y param3.
+
+X. Apagar/Prender keywords basados en URL, prender con cierta etiqueta. cid de Adwords. Con etiquetado. - Sistema de apagado de emergencia.
+
+Y. Considerar scripts corriendo al mismo tiempo.
+
+Z. Obtener busquedas relacionadas a cierto rango para nuevas keywords.
+
+0. Obtener keywords desde Google Analytics.
+
+1. CPC max < CPC sugerido/ Conversiones 1 o mas / Costo por conversion =< promedio general de la cuenta-> aplicar CPC sugerido * 1.1  (TopOfPageCpc)
+
+2. Search Terms correr una vez al día y enviar emails en todas las cuentas.
+
+3. Broken URLs y en Apagado de emergencia - Avisar adgroups sin anuncios activos.
+
+4. Alertas presupuestos. Investigar formas de pago de cuentas.
