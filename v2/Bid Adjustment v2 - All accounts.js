@@ -22,8 +22,8 @@ var ACCOUNT_TO_EMAILS = {
 var TIME_PERIOD = "LAST_MONTH";
 var BID_ADJUSTMENT_COEFFICIENT = 1.1;
 var THRESHOLD_KEYWORD_PARAMETERS = {"Conversions":1};
-var MODIFIED_LABEL = "AJUSTADO CON SCRIPT";
-var SPREADSHEET_PREVIOUS_KEYWORD_PARAMS_LINK = "https://docs.google.com/a/abacometrics.com/spreadsheets/d/1e_rjF916-cVBSlg5OVCGm_CHZCAjN9Z68z0Q9ETr5e0/edit";
+var MODIFIED_LABEL = "CPC AJUSTADO CON SCRIPT";
+var SPREADSHEET_PREVIOUS_KEYWORD_PARAMS_LINK = "1e_rjF916-cVBSlg5OVCGm_CHZCAjN9Z68z0Q9ETr5e0";
 
 function main()
 {
@@ -36,11 +36,20 @@ function main()
         .withCondition('Impressions > 1')
         .forDateRange("LAST_WEEK")
     	.get();
+      
+        
 	    while(accounts.hasNext())
     	{
 			var account = accounts.next();
             Logger.log("ACCOUNT: " + account.getName());
 			MccApp.select(account);
+            var label = AdWordsApp.labels()
+                           .withCondition("Name CONTAINS '" + MODIFIED_LABEL + "'")
+                           .get();
+            if(label.totalNumEntities() < 1)
+            {
+              AdWordsApp.createLabel(MODIFIED_LABEL);
+            }  
 			adjustBids(account);
     	}
 	}
@@ -71,8 +80,8 @@ function adjustBids(account)
 		)
 		{
 			saveCurrentBids(keyword, account);
-			//keyword.setMaxCpc(keyword.getTopOfPageCpc()*BID_ADJUSTMENT_COEFFICIENT);
-			//keyword.applyLabel(MODIFIED_LABEL);
+			keyword.setMaxCpc(keyword.getTopOfPageCpc()*BID_ADJUSTMENT_COEFFICIENT);
+			keyword.applyLabel(MODIFIED_LABEL);
 			Logger.log("MODIFIED   Id: " + keyword.getId() +"  Text: " + keyword.getText() + " MaxCpc: " + keyword.getTopOfPageCpc()*BID_ADJUSTMENT_COEFFICIENT);
 		}
 	}
@@ -80,7 +89,7 @@ function adjustBids(account)
 
 function saveCurrentBids(keyword, account)
 {
-	var ss = SpreadsheetApp.openByUrl(SPREADSHEET_PREVIOUS_KEYWORD_PARAMS_LINK);
+	var ss = SpreadsheetApp.openById(SPREADSHEET_PREVIOUS_KEYWORD_PARAMS_LINK);
 	
 	var row = [
 			new Date().toISOString(), 
@@ -90,8 +99,47 @@ function saveCurrentBids(keyword, account)
 			keyword.getMaxCpc(), 
 			keyword.getQualityScore(),
 			account.getName(),
-			keyword.getCampaign(), 
-			keyword.getAdGroup()
+			keyword.getCampaign().getName(), 
+			keyword.getAdGroup().getName()
 		];
 	ss.appendRow(row);
+}
+
+function sendEmailNotification(account, data, emailAddresses)
+{
+	var SUBJECT = account.getName() + ": Bidding Modificado automáticamente. " + _getDateString();
+    var recipients = "";
+	var EMAIL_BODY = "Hola, \nLos siguientes anuncios fueron detenidos porque se detectó que apuntan a URLs rotos. También fueron etiquetados como: '" + BROKEN_TAG_TEXT + "'\n";
+	for(var i = 0; i<emailAddresses.length; i++)
+	{
+		for(var j = 0; j<data.length; j++) 
+		{
+			EMAIL_BODY += "id: " + data[j].id 
+				+ "\t" + "campaignName: " + data[j].campaignName 
+				+ "\t" + "adGroupName: " + data[j].adGroupName 
+				+ "\t" + "headline: " + data[j].headline 
+				+ "\t" + "description1: " + data[j].description1 
+				+ "\t" + "description2: " + data[j].description2 
+				+ "\t" + "url: " + data[j].url 
+				+ "\t" + "response_code: " + data[j].response_code 
+				+ "\t" + "time: " + _getFullDateString()
+                + "\n";
+	    }
+    	recipients += emailAddresses[i];
+        if(emailAddresses.length > 1 && i < (emailAddresses.length - 1))
+        {
+           recipients += ",";
+        }
+	}
+    EMAIL_BODY += "\nSaludos.";
+    EMAIL_BODY += "\n-Robot de Adwords de Ábaco";
+    MailApp.sendEmail(recipients, SUBJECT, EMAIL_BODY);
+}
+
+function _getDateString() {
+  return Utilities.formatDate((new Date()), AdWordsApp.currentAccount().getTimeZone(), "yyyy-MM-dd");
+}
+
+function _getFullDateString() {
+  return Utilities.formatDate((new Date()), AdWordsApp.currentAccount().getTimeZone(), "yyyy-MM-dd HH:MM:SS");
 }
