@@ -1,6 +1,4 @@
-var ACCOUNT_NAMES = [
-	"INAMI","FONART","SEP","EnTuCine","Weber","CALZADO ANDREA","UTEL","Ingenes","Viajamex","YS Media - Banamex",
-	"CEMAC","ISDI - México","Casas Ara - Abaco","DOOPLA","Amex CM","Amex GCP"];
+var ACCOUNT_NAMES = ["INAMI","FONART","SEP","EnTuCine","Weber","UTEL","Ingenes","Viajamex","CEMAC","Casas Ara - Abaco","Amex GCP"];
 var ACCOUNT_TO_EMAILS = {
 	"INAMI":["mariana@abacometrics.com","pamela@abacodigital.com","salvador@abacodigital.com","luis.bosquez@abacometrics.com"],
 	"FONART":["mariana@abacometrics.com","pamela@abacodigital.com","salvador@abacodigital.com","luis.bosquez@abacometrics.com"],
@@ -23,7 +21,7 @@ var TIME_PERIOD = "LAST_MONTH";
 var BID_ADJUSTMENT_COEFFICIENT = 1.1;
 var THRESHOLD_KEYWORD_PARAMETERS = {"Conversions":1};
 var MODIFIED_LABEL = "CPC AJUSTADO CON SCRIPT";
-var SPREADSHEET_PREVIOUS_KEYWORD_PARAMS_LINK = "1e_rjF916-cVBSlg5OVCGm_CHZCAjN9Z68z0Q9ETr5e0";
+var SPREADSHEET_PREVIOUS_KEYWORD_PARAMS_ID = "1e_rjF916-cVBSlg5OVCGm_CHZCAjN9Z68z0Q9ETr5e0";
 
 function main()
 {
@@ -74,10 +72,9 @@ function adjustBids(account)
 		var keywordStats = keyword.getStatsFor(TIME_PERIOD);
 		
 		Logger.log("Id: " + keyword.getId() +"  Text: " + keyword.getText() + " MaxCpc: " + keyword.getMaxCpc() + "  TopOfPageCpc: " + keyword.getTopOfPageCpc());
-		if(
-			keyword.getMaxCpc() < keyword.getTopOfPageCpc() && 
-			(keywordStats.getCost()/keywordStats.getConvertedClicks()) <=  THRESHOLD_KEYWORD_PARAMETERS["AccountAvgCostPerConversion"]
-		)
+		
+		//if((keywordStats.getCost()/keywordStats.getConvertedClicks()) <=  THRESHOLD_KEYWORD_PARAMETERS["AccountAvgCostPerConversion"])
+		if(keyword.getMaxCpc() < keyword.getTopOfPageCpc() && 	(keywordStats.getCost()/keywordStats.getConvertedClicks()) <=  THRESHOLD_KEYWORD_PARAMETERS["AccountAvgCostPerConversion"])
 		{
 			saveCurrentBids(keyword, account);
 			keyword.setMaxCpc(keyword.getTopOfPageCpc()*BID_ADJUSTMENT_COEFFICIENT);
@@ -89,18 +86,32 @@ function adjustBids(account)
 
 function saveCurrentBids(keyword, account)
 {
-	var ss = SpreadsheetApp.openById(SPREADSHEET_PREVIOUS_KEYWORD_PARAMS_LINK);
-	
-	var row = [
-			new Date().toISOString(), 
-			keyword.getId(), 
-			keyword.getText(), 
-			keyword.getMatchType(), 
-			keyword.getMaxCpc(), 
-			keyword.getQualityScore(),
-			account.getName(),
-			keyword.getCampaign().getName(), 
-			keyword.getAdGroup().getName()
-		];
-	ss.appendRow(row);
+	var ss = SpreadsheetApp.openById(SPREADSHEET_PREVIOUS_KEYWORD_PARAMS_ID);
+	if(!previousConfigExists(keyword, ss))
+	{
+		var row = 
+			[
+				new Date().toISOString(), 
+				keyword.getId(), 
+				keyword.getText(), 
+				keyword.getMatchType(), 
+				keyword.getMaxCpc(), 
+				keyword.getQualityScore(),
+				account.getName(),
+				keyword.getCampaign().getName(), 
+				keyword.getAdGroup().getName()
+			];
+		ss.appendRow(row);
+	}
+}
+
+function previousConfigExists(keyword, ss)
+{
+	var values = ss.getRange("A2:"+ss.getLastRow()+""+ss.getLastColumn()).getValues();
+	for(var i = 0; i<values.length; i++)
+	{
+        if(values[i][1].length < 1){	return false;	}
+		if(keyword.getId() == values[i][1]){	return true;	}
+	}
+	return false;
 }

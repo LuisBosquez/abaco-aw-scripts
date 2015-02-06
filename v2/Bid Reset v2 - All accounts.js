@@ -1,7 +1,4 @@
-var ACCOUNT_NAMES = [
-	"INAMI","FONART","SEP","EnTuCine","Weber","CALZADO ANDREA","UTEL","Ingenes","Viajamex","YS Media - Banamex",
-	"CEMAC","ISDI - México","Casas Ara - Abaco","DOOPLA","Amex CM","Amex GCP"
-	];
+var ACCOUNT_NAMES = ["INAMI","FONART","SEP","EnTuCine","Weber","UTEL","Ingenes","Viajamex","CEMAC","Casas Ara - Abaco","Amex GCP"];
 var ACCOUNT_TO_EMAILS = 
 {
 	"INAMI":["mariana@abacometrics.com","pamela@abacodigital.com","salvador@abacodigital.com","luis.bosquez@abacometrics.com"],

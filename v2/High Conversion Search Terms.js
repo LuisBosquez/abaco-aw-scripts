@@ -1,6 +1,4 @@
-var ACCOUNT_NAMES = [
-	"INAMI","FONART","SEP","EnTuCine","Weber","CALZADO ANDREA","UTEL","Ingenes","Viajamex","YS Media - Banamex",
-	"CEMAC","ISDI - México","Casas Ara - Abaco","DOOPLA","Amex CM","Amex GCP"];
+var ACCOUNT_NAMES = ["INAMI","FONART","SEP","EnTuCine","Weber","UTEL","Ingenes","Viajamex","CEMAC","Casas Ara - Abaco","Amex GCP"];
 var ACCOUNT_TO_EMAILS = {
 	"INAMI":["mariana@abacometrics.com","pamela@abacodigital.com","salvador@abacodigital.com","luis.bosquez@abacometrics.com"],
 	"FONART":["mariana@abacometrics.com","pamela@abacodigital.com","salvador@abacodigital.com","luis.bosquez@abacometrics.com"],
@@ -43,16 +41,15 @@ function main()
 			MccApp.select(account);
 			
 			var highConversionSearchTerms = getHighConversionSearchTerms();
-			var spreadsheet;
+			var spreadsheet = null;
 			if(highConversionSearchTerms.length > 0)
 			{
 				spreadsheet = exportSearchTerms(account, highConversionSearchTerms);
+				if(MailApp.getRemainingDailyQuota() > 1 && spreadsheet != null)
+            	{
+            		sendEmailNotification(account, spreadsheet, ACCOUNT_TO_EMAILS[ACCOUNT_NAMES[i]]);
+            	}
 			}
-			
-			if(MailApp.getRemainingDailyQuota() > 1)
-            {
-            	sendEmailNotification(account, spreadsheet, ACCOUNT_TO_EMAILS[ACCOUNT_NAMES[i]]);
-            }
 			
     	}
 	}
@@ -93,10 +90,15 @@ function exportSearchTerms(account, searchTerms)
 
     DriveApp.getFileById(spreadsheet.getId()).setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.VIEW);
     
+    if(searchTerms.length < 1)
+    {
+    	return null;
+    }
+    
     for(var i = 0; i<searchTerms.length; i++)
     {
     	spreadsheet.appendRow(searchTerms[i]);
-    }
+    } 
     spreadsheet.sort(11, false);
     return spreadsheet;
 }
@@ -107,7 +109,7 @@ function isExistingKeyword(searchTerm, matchType)
   	.withCondition("Impressions > 1")
     .withCondition("Text CONTAINS_IGNORE_CASE '" + searchTerm + "'")
     .orderBy("Text ASC")
-    .forDateRange("LAST_MONTH")
+    .forDateRange("LAST_WEEK")
     .get();
     
   while(keywords.hasNext())

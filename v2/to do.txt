@@ -1,0 +1,9 @@
+BID ajustado <= CPA promedio por cuenta
+
+Actualizar clientes
+
+["INAMI","FONART","SEP","EnTuCine","Weber","UTEL","Ingenes","Viajamex","CEMAC","Casas Ara - Abaco","Amex GCP"];
+
+Script: keywords con 90 días sin conversiones y con costo. NOTIFICAR/PAUSAR
+
+
