@@ -1,4 +1,4 @@
-var ACCOUNT_NAMES = ["INAMI","FONART","SEP","EnTuCine","Weber","UTEL","Ingenes","Viajamex","CEMAC","Casas Ara - Abaco","Amex GCP"];
+var ACCOUNT_NAMES = ["INAMI","FONART","SEP","EnTuCine","Weber","UTEL","Ingenes","Viajamex","CEMAC","Casas Ara - Abaco","Amex GCP","DOOPLA"];
 var ACCOUNT_TO_EMAILS = 
 {
 	"INAMI":["mariana@abacometrics.com","pamela@abacodigital.com","salvador@abacodigital.com","luis.bosquez@abacometrics.com"],
@@ -22,9 +22,8 @@ var ACCOUNT_TO_EMAILS =
 var TIME_PERIOD = "LAST_MONTH";
 var BID_ADJUSTMENT_COEFFICIENT = 1.1;
 var THRESHOLD_KEYWORD_PARAMETERS = {"Conversions":1};
-var MODIFIED_LABEL = "AJUSTADO CON SCRIPT";
+var MODIFIED_LABEL = "CPC AJUSTADO CON SCRIPT";
 var SPREADSHEET_PREVIOUS_KEYWORD_PARAMS_ID = "1e_rjF916-cVBSlg5OVCGm_CHZCAjN9Z68z0Q9ETr5e0";
-
 function main()
 {
 	var mccAccount = AdWordsApp.currentAccount();
@@ -65,9 +64,10 @@ function main()
 function setPreviousConfigForKeyword(keyword)
 {
 	var ss = SpreadsheetApp.openById(SPREADSHEET_PREVIOUS_KEYWORD_PARAMS_ID);
-	var values = ss.getRange("A2:"+ss.getLastRow()+""+ss.getLastColumn()).getValues();
-	for(var i = 0; i<values.length; i++)
+	var values = ss.getRange("A:I").getValues();
+	for(var i = 1; i<values.length; i++)
 	{
+        //Logger.log(values[i][1]);
         if(values[i][1].length < 1)
         {
           return false;
@@ -76,8 +76,8 @@ function setPreviousConfigForKeyword(keyword)
 		{
 			Logger.log("Setting value to: " + values[i][4]);
             keyword.setMaxCpc(values[i][4]);
-
-			ss.deleteRow(i + 2);
+			keyword.removeLabel(MODIFIED_LABEL);
+			ss.deleteRow(i + 1);
 			return true;
 		}
 
